@@ -1,0 +1,49 @@
+name: Node.js Deploy
+
+on:
+  push:
+    branches: [ "main" ]
+  # Optional: Trigger after successful CI
+  # workflow_run:
+  #   workflows: ["Node.js CI"] # Name of the CI workflow
+  #   types:
+  #     - completed
+  #   branches: [ "main" ]
+
+
+jobs:
+  deploy:
+    # Optional: Conditionally run if CI passed (when using workflow_run)
+    # if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    runs-on: ubuntu-latest
+    needs: build # Assuming 'build' is the job name in ci.yml. If not, this won't work as a direct dependency across workflows without workflow_run
+                  # For simplicity now, we'll make it trigger on push to main, and it would run in parallel to CI or after if CI is very fast.
+                  # A more robust solution would use workflow_run or combine CI and CD into one workflow with job dependencies.
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Use Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: 20.x # Use a specific version for deployment consistency
+        cache: 'npm'
+
+    - name: Install dependencies
+      run: npm ci
+
+    # Add actual deployment steps here, for example:
+    - name: Build application (if necessary)
+      run: echo "Building application..." # Replace with actual build command if any, e.g., npm run build
+
+    - name: Deploy to production/staging
+      run: |
+        echo "Starting deployment..."
+        # Example: Deploy to a cloud provider, PaaS, or your own server
+        # gcloud app deploy
+        # aws s3 sync ./dist s3://my-bucket
+        # scp -r ./dist user@your-server:/var/www/html
+        echo "Deployment placeholder: Configure your deployment provider details here."
+        # For now, we'll just simulate a success
+        exit 0
